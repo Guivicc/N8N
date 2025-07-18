@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo Da Velha</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <main>
+        
+            <section class="opcoes active">
+                <div >
+                    <p>Escolha a dificuldade</p>
+                    <input type="radio" name="dificuldade" id="dificuldadeNormal" value="normal" >
+                    <label for="dificuldadeNormal">Normal</label>
+                    <input type="radio" name="dificuldade" id="dificuldadeHard" value="hard">
+                    <label for="dificuldadeHard">Hard</label>
+                </div>
+                <div>
+                    <p>Modo de jogo</p>
+                    <input type="radio" name="gameMode" id="gameModeNormal" value="normal">
+                    <label for="gameModeNormal">Normal</label>
+                    <input type="radio" name="gameMode" id="gameModeInvertido" value="invertido">
+                    <label for="gameModeInvertido">Invertido</label>
+                    <input type="radio" name="gameMode" id="gameMode3pecas" value="dinamico">
+                    <label for="gameMode3pecas">dinamico</label>
+                </div>
+                <div>
+                    <p>Escolha o primeiro a jogar</p>
+                    <input type="radio" name="quemComeca" id="userComeca" value="Player">
+                    <label for="userComeca" >Jogador começa</label>
+                    <input type="radio" name="quemComeca" id="iaComeca" value="IA">
+                    <label for="iaComeca">IA Começa</label>
+                </div>
+                <button type="button" id="confirmar" onclick="validacao()">confirmar</button>
+
+                <p id="erros"></p>
+            </section>
+        
+        <section class="board">
+            <div id="A1" class="casas"></div>
+            <div id="A2" class="casas"></div>
+            <div id="A3" class="casas"></div>
+            <div id="B1" class="casas"></div>
+            <div id="B2" class="casas"></div>
+            <div id="B3" class="casas"></div>
+            <div id="C1" class="casas"></div>
+            <div id="C2" class="casas"></div>
+            <div id="C3" class="casas"></div>
+            <button type="button">Mudar modo de jogo</button>
+            <p id="resultado"></p>
+            <button type="button" onclick="reset()">Resetar jogo</button>
+        </section>
+    </main>
+</body>
+<script src="javascript.js"></script>
+</html>
