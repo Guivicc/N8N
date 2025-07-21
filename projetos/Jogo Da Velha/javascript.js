@@ -1,5 +1,5 @@
 //variaveis n8n
-const webhook = 'http://localhost:5678/webhook-test/8723e698-ddcd-444b-9db9-374bacb44bb1';
+const webhook = 'http://localhost:5678/webhook/8723e698-ddcd-444b-9db9-374bacb44bb1';
 //variaveis globais
 let jogojson ;
 let jogo ;
@@ -874,14 +874,14 @@ async function enviarParaN8N() {
             const dadosIA = await resposta.json();
             let jogadaDaIA = dadosIA.output; // Ex: "B2"
             jogadaDaIA = jogadaDaIA.replace(/\s/g, '');
-            console.log(jogadaDaIA)
+            
 
             if (!jogadaDaIA) {
                 console.error("Erro: A resposta da IA não contém a propriedade 'jogada'.");
                 return;
             }
 
-            console.log("IA sugeriu a jogada:", jogadaDaIA);
+            
             if(jogada === 'IA'){
                 
                 if(modoDeJogo === "normal" || modoDeJogo === "invertido"){
@@ -901,7 +901,7 @@ async function enviarParaN8N() {
                             }
                             break;
                         case 'A2':
-                            console.log(A2)
+                            
                                 if(A2 === " "){
                                     A2 = "O"
                                     document.getElementById('A2').textContent = "O"
@@ -916,7 +916,7 @@ async function enviarParaN8N() {
                                 }
                                 break;
                         case 'A3':
-                            console.log(A3)
+                            
                                 if(A3 === " "){
                                     A3 = "O"
                                     document.getElementById('A3').textContent = "O"
@@ -932,9 +932,9 @@ async function enviarParaN8N() {
                     
                             break;
                         case 'B1':
-                            console.log(B1)
+                            
                             if(B1 === " "){
-                                console.log("entrou no switch case")
+                                
                                 B1 = "O"
                                 document.getElementById('B1').textContent = "O"
                                 totalJogadas++
@@ -947,9 +947,9 @@ async function enviarParaN8N() {
                             break;
                     
                         case 'B2':
-                            console.log(B2)
+                            
                             if(B2 === " "){
-                                console.log("entrou no switch case")
+                            
                                 B2 = "O"
                                 document.getElementById('B2').textContent = "O"
                                 totalJogadas++
@@ -961,7 +961,7 @@ async function enviarParaN8N() {
                             }
                             break;
                         case 'B3':
-                            console.log(B3)
+                            
                             if(B3 === " "){
                                 B3 = "O"
                                 document.getElementById('B3').textContent = "O"
@@ -975,7 +975,7 @@ async function enviarParaN8N() {
                             break;
                     
                         case 'C1':
-                            console.log(C1)
+                            
                             if(C1 === " "){
                                 C1 = "O"
                                 document.getElementById('C1').textContent = "O"
@@ -989,7 +989,7 @@ async function enviarParaN8N() {
                             break;
                     
                         case 'C2':
-                            console.log(C2)
+                           
                             if(C2 === " "){
                                 C2 = "O"
                                 document.getElementById('C2').textContent = "O"
@@ -1002,7 +1002,7 @@ async function enviarParaN8N() {
                             }
                             break;
                         case 'C3':
-                            console.log(C3)
+                            
                             if(C3 === " "){
                                 C3 = "O"
                                 document.getElementById('C3').textContent = "O"
@@ -1092,7 +1092,7 @@ async function enviarParaN8N() {
                             }
                             break;
                         case 'A2':
-                            console.log(A2)
+                            
                                 if(A2 === " "){
                                     A2 = "O"
                                     document.getElementById('A2').textContent = "O"
@@ -1166,7 +1166,7 @@ async function enviarParaN8N() {
                                 break;
                                 
                         case 'A3':
-                            console.log(A3)
+                            
                                 if(A3 === " "){
                                     A3 = "O"
                                     document.getElementById('A3').textContent = "O"
@@ -1240,9 +1240,9 @@ async function enviarParaN8N() {
                     
                             break;
                         case 'B1':
-                            console.log(B1)
+                            
                             if(B1 === " "){
-                                console.log("entrou no switch case")
+                               
                                 B1 = "O"
                                 document.getElementById('B1').textContent = "O"
                                 filaIA.push('B1')
@@ -1313,7 +1313,7 @@ async function enviarParaN8N() {
                             break;
                     
                         case 'B2':
-                            console.log(B2)
+                            
                             if(B2 === " "){
                                 B2 = "O"
                                 document.getElementById('B2').textContent = "O"
@@ -1384,7 +1384,7 @@ async function enviarParaN8N() {
                             }
                             break;
                         case 'B3':
-                            console.log(B3)
+                            
                             if(B3 === " "){
                                 B3 = "O"
                                 document.getElementById('B3').textContent = "O"
@@ -1456,7 +1456,7 @@ async function enviarParaN8N() {
                             break;
                     
                         case 'C1':
-                            console.log(C1)
+                           
                             if(C1 === " "){
                                 C1 = "O"
                                 document.getElementById('C1').textContent = "O"
@@ -1528,7 +1528,7 @@ async function enviarParaN8N() {
                             break;
                     
                         case 'C2':
-                            console.log(C2)
+                            
                             if(C2 === " "){
                                 C2 = "O"
                                 document.getElementById('C2').textContent = "O"
@@ -1599,7 +1599,7 @@ async function enviarParaN8N() {
                             }
                             break;
                         case 'C3':
-                            console.log(C3)
+                            
                             if(C3 === " "){
                                 C3 = "O"
                                 document.getElementById('C3').textContent = "O"
@@ -1947,3 +1947,45 @@ function reset(){
     }
 
 }
+
+function trocarModoJogo(){
+    const menuJogo = document.querySelector('.opcoes');
+    const tabuleiro = document.querySelector('.board')
+    reset()
+    //escondendo menu 
+    tabuleiro.classList.remove('active'); //remove a classe
+    tabuleiro.addEventListener('transitionend', (event) => {
+        if(event.propertyName === 'opacity'){
+            tabuleiro.style.display = 'none';
+            menuJogo.style.display = 'flex'
+        }
+    }, { once: true})
+
+    
+
+    setTimeout(() => {
+        //mostando tabuleiro
+        menuJogo.classList.add('active');
+    }, 400);
+
+}
+
+/*
+//escondendo menu 
+    menuJogo.classList.remove('active'); //remove a classe
+
+    menuJogo.addEventListener('transitionend', (event) => {
+        if(event.propertyName === 'opacity'){
+            menuJogo.style.display = 'none';
+            tabuleiro.style.display = 'flex'
+        }
+    }, { once: true})
+
+    
+
+    setTimeout(() => {
+        //mostando tabuleiro
+        tabuleiro.classList.add('active');
+    }, 400);
+
+*/

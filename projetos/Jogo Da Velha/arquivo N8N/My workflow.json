@@ -1,0 +1,705 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.estadoAtual }}",
+        "options": {
+          "systemMessage": "={{ $json.prompt }}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        224,
+        368
+      ],
+      "id": "950dee4c-94f9-4770-adf6-857d59abc6eb",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "jsCode": "// --- Início do Código no n8n ---\n\n//Recebe e processa a entrada do nó anterior\n\n\n\n\n//Extrai as variáveis do jogo usando desestruturação\nconst {\n  A1, A2, A3, B1, B2, B3, C1, C2, C3, dificuldade\n} = $input.first().json.estadoAtual;\n\nconst variaveis = $input.first().json.estadoAtual\n\n//Variáveis para o prompt final\nlet promptDificuldade\nconst jogadorIA = 'O'; \n//Cria a representação visual do tabuleiro para a IA\nconst representacaoTabuleiro =\n`\n  1 2 3\nA ${A1 || ' '} ${A2 || ' '} ${A3 || ' '}\nB ${B1 || ' '} ${B2 || ' '} ${B3 || ' '} \nC ${C1 || ' '} ${C2 || ' '} ${C3 || ' '}\n`;\n\n//preparação do prompt\n\nif(dificuldade === \"hard\"){\n  promptDificuldade = `\nVocê é uma ia focada em ganhar no jogo da velha. seu objetivo é joga para ganhar, e se não puder ganhar para empatar. A derrota é uma impossibilidade lógica.\n\nAVALIE O TABULEIRO E EXECUTE A PRIMEIRA AÇÃO POSSÍVEL DESTA LISTA, EM ORDEM DE PRIORIDADE ESTRITA:\n\n**HIERARQUIA DE JOGADA PERFEITA:**\n\n1.  **GANHAR:** Se você ('${jogadorIA}') tem duas peças em uma linha, coluna ou diagonal, jogue na casa vazia para completar a trinca e vencer.\n\n2.  **BLOQUEAR:** Se o oponente ('X') tem duas peças em uma linha, coluna ou diagonal, jogue na casa vazia para impedi-lo de vencer na próxima rodada.\n\n3.  **BLOQUEAR GARFO DO OPONENTE:** Se o oponente está prestes a criar um garfo na próxima jogada dele, sua jogada deve ser para bloquear essa criação.\n    * **Análise de Garfo:** A principal forma de o oponente criar um garfo é colocando uma peça em uma casa que cria duas linhas de duas peças não bloqueadas. Sua jogada deve ocupar essa casa crucial. Se houver múltiplas possibilidades de garfo, force o oponente a jogar defensivamente em vez de permitir que ele monte o ataque.\n\n4.  **CRIAR GARFO (FORK):** Faça uma jogada que crie duas ameaças de vitória simultaneamente (duas linhas diferentes onde você tem duas peças). Isso força o oponente a bloquear uma, enquanto você vence na outra na próxima jogada.\n\n5.  **JOGAR NO CENTRO:** Se a casa do centro (B2) estiver vazia, jogue nela.\n\n6.  **JOGAR NO CANTO OPOSTO:** Se o oponente estiver em uma casa de canto (A1, A3, C1, C3), jogue no canto diametralmente oposto.\n\n7.  **JOGAR EM UM CANTO VAZIO:** Jogue em qualquer casa de canto que ainda esteja vazia (A1, A3, C1, C3).\n\n8.  **JOGAR EM UM LADO VAZIO:** Jogue em qualquer casa lateral do meio que esteja vazia (A2, B1, B3, C2).\n\nSiga esta hierarquia de forma implacável.\n`\n}\nelse{\n  promptDificuldade = `\nVocê é um jogador de Jogo da Velha entusiasmado, mas um pouco distraído e casual. Você joga para se divertir, mas gosta de ganhar se a oportunidade for óbvia.\n\nSiga estas diretrizes de comportamento:\n1.  **Prioridade Máxima:** Se você pode fazer uma jogada que ganha o jogo imediatamente, você **sempre** fará essa jogada. Você não perde uma chance clara de vitória.\n2.  **Comportamento Casual (Onde o 'erro' acontece):** Se não houver uma jogada para vitória imediata, você tende a não analisar o jogo profundamente. Você pode:\n    * Escolher uma casa que parece boa, sem pensar nas consequências futuras.\n    * Às vezes, não perceber uma jogada de bloqueio necessária, a menos que a ameaça do oponente seja muito óbvia (duas casas em linha).\n    * Se não houver nada óbvio a fazer, pode escolher uma casa vazia de forma quase aleatória.\n\nEm resumo: ganhe se for fácil, caso contrário, jogue de forma casual e sem a pressão de ser um especialista.\n`\n}\n\n// 4. Monta o prompt completo e detalhado\n\nconst promptCompleto = `\n${promptDificuldade}\nO estado atual do tabuleiro é o seguinte, onde casas vazias são representadas por um espaço:\n${representacaoTabuleiro}\n\nÉ a sua vez de jogar. Você é o jogador '${jogadorIA}'.\n\nAnalise o tabuleiro e determine a jogada.\n\nResponda APENAS com a coordenada da casa que você escolheu (por exemplo: A2, C1, etc.). Não adicione nenhuma outra palavra, explicação ou pontuação.\n`;\n\n\n// 5. Retorna o prompt no formato que o n8n precisa\nreturn [\n  {\n    json: {\n      prompt: promptCompleto,\n      // Você pode passar outros dados úteis para os próximos nós, se precisar\n      estadoAtual: variaveis \n    }\n  }\n];\n\n// --- Fim do Código no n8n ---"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        0,
+        368
+      ],
+      "id": "99a584e9-f85e-4b6e-a9ba-f56d43519da4",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "8723e698-ddcd-444b-9db9-374bacb44bb1",
+        "responseMode": "lastNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -848,
+        368
+      ],
+      "id": "36802dfd-d922-45af-bd68-2c3e2816040c",
+      "name": "Webhook",
+      "webhookId": "8723e698-ddcd-444b-9db9-374bacb44bb1"
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst body = $input.first().json.body;\nconst variaveis = JSON.parse(body);\n\n\n//Extrai as variáveis do jogo usando desestruturação\nconst {\n  A1, A2, A3, B1, B2, B3, C1, C2, C3, dificuldade\n} = variaveis;\n\nreturn [\n  {\n    json: {\n      estadoAtual: variaveis \n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -624,
+        368
+      ],
+      "id": "fa689eef-3c46-4e9c-b868-d8cebbc1455f",
+      "name": "Code1"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.estadoAtual.modoDeJogo }}",
+                    "rightValue": "invertido",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "91bd8458-aad0-4430-bc85-d0ff918c2d8e"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "f5e18aa8-1b8a-4e87-ab06-6bab4ceb36b6",
+                    "leftValue": "={{ $json.estadoAtual.modoDeJogo }}",
+                    "rightValue": "normal",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "a6a02d5f-d749-4e1f-8a05-313afec711ae",
+                    "leftValue": "={{ $json.estadoAtual.modoDeJogo }}",
+                    "rightValue": "dinamico",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -336,
+        368
+      ],
+      "id": "c94c8922-c7d5-45c1-b936-ab773848ced2",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "jsCode": "//Recebe e processa a entrada do nó anterior invertido\nconst variaveis = $input.first().json.estadoAtual;\n\n\n//Extrai as variáveis do jogo usando desestruturação\nconst {\n  A1, A2, A3, B1, B2, B3, C1, C2, C3, dificuldade\n} = variaveis;\n\nconst table = {A1, A2, A3, B1, B2, B3, C1, C2, C3}\n\n//Variáveis para o prompt final\nlet promptDificuldade\nconst jogadorIA = 'O'; \n//Cria a representação visual do tabuleiro para a IA\nconst representacaoTabuleiro =\n`\n  1 2 3\nA ${A1 || ' '} ${A2 || ' '} ${A3 || ' '}\nB ${B1 || ' '} ${B2 || ' '} ${B3 || ' '} \nC ${C1 || ' '} ${C2 || ' '} ${C3 || ' '}\n`;\n\n//preparação do prompt\n\nif (dificuldade === \"hard\") {\n  promptDificuldade = `Como jogar Jogo da velha invertido\n\nObjetivo: Vencer no Jogo da Velha Invertido, fazer seu oponente COMPLETAR UM LINHA OU COLUNA OU DIAGONAL.\n\nEntrada:\n\nVocê receberá o estado atual do tabuleiro de Jogo da Velha 3x3. O tabuleiro será representado por   1 2 3\nA ${A1 || ' '} ${A2 || ' '} ${A3 || ' '}\nB ${B1 || ' '} ${B2 || ' '} ${B3 || ' '} \nC ${C1 || ' '} ${C2 || ' '} ${C3 || ' '}\n    \n    '${jogadorIA}' representa uma de suas jogadas.\n\n    'X' representa uma jogada do oponente.\n\n    ' ' representa um espaço vazio.\n\nVocê é o jogador '${jogadorIA}'.\n\nO Jogo:\n\nPrioridade 1: jogue em qualquer casa VAZIA que não crie uma trinca\n\nPrioridade 2: Evite criar uma linha coluna ou diagonal com duas de suas peças\n\nPrioridade 3: caso possa fazer seu oponente criar um fork faça\n\nPrioridade 4: Priorize as casas A2, B1, B3, C2\n\n`\n}\nelse{\n  promptDificuldade = `Como jogar Jogo da velha invertido\n\nObjetivo: Vencer no Jogo da Velha Invertido, fazer seu oponente COMPLETAR UM LINHA OU COLUNA OU DIAGONAL.\n\nEntrada:\n\nVocê receberá o estado atual do tabuleiro de Jogo da Velha 3x3. O tabuleiro será representado por   1 2 3\nA ${A1 || ' '} ${A2 || ' '} ${A3 || ' '}\nB ${B1 || ' '} ${B2 || ' '} ${B3 || ' '} \nC ${C1 || ' '} ${C2 || ' '} ${C3 || ' '}\n    \n    '${jogadorIA}' representa uma de suas jogadas.\n\n    'X' representa uma jogada do oponente.\n\n    ' ' representa um espaço vazio.\n\nVocê é o jogador '${jogadorIA}'.\n\nO Jogo:\n\n\n1. jogue em qualquer casa VAZIA que não crie uma trinca\n`\n}\n\nconst promptCompleto = `\n${promptDificuldade}\nO estado atual do tabuleiro é o seguinte, onde casas vazias são representadas por um espaço:\n${representacaoTabuleiro}\n\nÉ a sua vez de jogar. Você é o jogador '${jogadorIA}'.\n\nAnalise o tabuleiro e determine a jogada.\n\nResponda APENAS com a coordenada da casa que você escolheu (por exemplo: A2, C1, etc.). Não adicione nenhuma outra palavra, explicação ou pontuação.\n`;\n\nreturn [\n  {\n    json: {\n      prompt: promptCompleto,\n      // Você pode passar outros dados úteis para os próximos nós, se precisar\n      estadoAtual: table \n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "63639d9e-72fb-45c4-890e-e879fb9be444",
+      "name": "Code2"
+    },
+    {
+      "parameters": {
+        "jsCode": "//Recebe e processa a entrada do nó anterior\n\nconst variaveis = $input.first().json.estadoAtual\n\n\n//Extrai as variáveis do jogo usando desestruturação dinamico\nconst {\n  A1, A2, A3, B1, B2, B3, C1, C2, C3, dificuldade, ultimaJogadaIa, ultimaJogadaPlayer\n} = variaveis;\n\n//Variáveis para o prompt final\nlet promptDificuldade\nconst jogadorIA = 'O'; \n//Cria a representação visual do tabuleiro para a IA\nconst representacaoTabuleiro =\n`\n  1 2 3\nA ${A1 || ' '} ${A2 || ' '} ${A3 || ' '}\nB ${B1 || ' '} ${B2 || ' '} ${B3 || ' '} \nC ${C1 || ' '} ${C2 || ' '} ${C3 || ' '}\n`;\n\n//preparação do prompt\n\nif(dificuldade === \"hard\"){\n  promptDificuldade = `Você é uma ia focada em ganhar no jogo da velha. seu objetivo é joga para ganhar, e se não puder ganhar não deixe o X ganhar. porém o voce vai jogar um jogo da velha dinamico onde tera no maximo 3 simbolos de cada, quando terminar sua rodada a casa ${ultimaJogadaIa} ficara vazia e apos a proxima jogada o X a casa ${ultimaJogadaPlayer} leve isso em consideração para pensar sua proxima jogada\n\nAVALIE O TABULEIRO E EXECUTE A PRIMEIRA AÇÃO POSSÍVEL DESTA LISTA, EM ORDEM DE PRIORIDADE ESTRITA:\n\n**HIERARQUIA DE JOGADA PERFEITA:**\n\n1.  **GANHAR:** Se você ('${jogadorIA}') tem duas peças em uma linha, coluna ou diagonal, jogue na casa vazia para completar a trinca e vencer.\n\n2.  **BLOQUEAR:** Se o oponente ('X') tem duas peças em uma linha, coluna ou diagonal, jogue na casa vazia para impedi-lo de vencer na próxima rodada.\n\n3.  **BLOQUEAR GARFO DO OPONENTE:** Se o oponente está prestes a criar um garfo na próxima jogada dele, sua jogada deve ser para bloquear essa criação.\n    * **Análise de Garfo:** A principal forma de o oponente criar um garfo é colocando uma peça em uma casa que cria duas linhas de duas peças não bloqueadas. Sua jogada deve ocupar essa casa crucial. leve em consideração as casas que ficarao vazias sua ${ultimaJogadaIa} e a do seu adversario ${ultimaJogadaPlayer} Se houver múltiplas possibilidades de garfo, force o oponente a jogar defensivamente em vez de permitir que ele monte o ataque.\n\n4.  **CRIAR GARFO (FORK):** Faça uma jogada que crie duas ameaças de vitória simultaneamente (duas linhas diferentes onde você tem duas peças). Isso força o oponente a bloquear uma, enquanto você vence na outra na próxima jogada.\n\n5.  **JOGAR NO CENTRO:** Se a casa do centro (B2) estiver vazia, jogue nela.\n\n6.  **JOGAR NO CANTO OPOSTO:** Se o oponente estiver em uma casa de canto (A1, A3, C1, C3), jogue no canto diametralmente oposto.\n\n7.  **JOGAR EM UM CANTO VAZIO:** Jogue em qualquer casa de canto que ainda esteja vazia (A1, A3, C1, C3).\n\n8.  **JOGAR EM UM LADO VAZIO:** Jogue em qualquer casa lateral do meio que esteja vazia (A2, B1, B3, C2).\n\nSiga esta hierarquia de forma implacável.\n`\n}\nelse{\n  promptDificuldade = `Você é uma ia focada em ganhar no jogo da velha. seu objetivo é joga para ganhar, e se não puder ganhar não deixe o X ganhar. porém o voce vai jogar um jogo da velha dinamico onde tera no maximo 3 simbolos de cada, quando terminar sua rodada a casa ${ultimaJogadaIa} ficara vazia\n\nAVALIE O TABULEIRO E EXECUTE A PRIMEIRA AÇÃO POSSÍVEL DESTA LISTA, EM ORDEM DE PRIORIDADE ESTRITA:\n\n**HIERARQUIA DE JOGADA PERFEITA:**\n\n1.  **GANHAR:** Se você ('${jogadorIA}') tem duas peças em uma linha, coluna ou diagonal, jogue na casa vazia para completar a trinca e vencer.\n\n2.  **BLOQUEAR:** Se o oponente ('X') tem duas peças em uma linha, coluna ou diagonal, jogue na casa vazia para impedi-lo de vencer na próxima rodada.\n\n3.  **BLOQUEAR GARFO DO OPONENTE:** Se o oponente está prestes a criar um garfo na próxima jogada dele, sua jogada deve ser para bloquear essa criação.\n    * **Análise de Garfo:** A principal forma de o oponente criar um garfo é colocando uma peça em uma casa que cria duas linhas de duas peças não bloqueadas. Sua jogada deve ocupar essa casa crucial. Se houver múltiplas possibilidades de garfo, force o oponente a jogar defensivamente em vez de permitir que ele monte o ataque.\n\n4.  **CRIAR GARFO (FORK):** Faça uma jogada que crie duas ameaças de vitória simultaneamente (duas linhas diferentes onde você tem duas peças). Isso força o oponente a bloquear uma, enquanto você vence na outra na próxima jogada.\n\n5.  **JOGAR NO CENTRO:** Se a casa do centro (B2) estiver vazia, jogue nela.\n\n6.  **JOGAR NO CANTO OPOSTO:** Se o oponente estiver em uma casa de canto (A1, A3, C1, C3), jogue no canto diametralmente oposto.\n\n7.  **JOGAR EM UM CANTO VAZIO:** Jogue em qualquer casa de canto que ainda esteja vazia (A1, A3, C1, C3).\n\n8.  **JOGAR EM UM LADO VAZIO:** Jogue em qualquer casa lateral do meio que esteja vazia (A2, B1, B3, C2).\n\nSiga esta hierarquia de forma implacável.\n`\n}\n\nconst promptCompleto = `\n${promptDificuldade}\nO estado atual do tabuleiro é o seguinte, onde casas vazias são representadas por um espaço:\n${representacaoTabuleiro}\n\nÉ a sua vez de jogar. Você é o jogador '${jogadorIA}'.\n\nAnalise o tabuleiro e determine a jogada.\n\nResponda APENAS com a coordenada da casa que você escolheu (por exemplo: A2, C1, etc.). Não adicione nenhuma outra palavra, explicação ou pontuação.\n`;\n\n\n// 5. Retorna o prompt no formato que o n8n precisa\nreturn [\n  {\n    json: {\n      prompt: promptCompleto,\n      // Você pode passar outros dados úteis para os próximos nós, se precisar\n      estadoAtual: variaveis \n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -48,
+        752
+      ],
+      "id": "eba73790-65be-4272-a2cd-8fb06242b5af",
+      "name": "Code3"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.estadoAtual }}",
+        "options": {
+          "systemMessage": "={{ $json.prompt }}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        224,
+        768
+      ],
+      "id": "9cd84114-bddf-40b2-9620-e9926b414f48",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.estadoAtual }}",
+        "options": {
+          "systemMessage": "={{ $json.prompt }}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        224,
+        0
+      ],
+      "id": "d5f1b6e8-5d52-4014-9b3f-59aee80e19b4",
+      "name": "AI Agent2"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Pega o primeiro item da entrada.\nconst item = $input.first();\n\nconst variaveis = $('Code1').first().json.estadoAtual\n// --- VERIFICAÇÃO 1: O DADO DE ENTRADA EXISTE? ---\n// Usamos '?' (optional chaining) para evitar erros se 'json' ou 'output' não existirem.\n// E verificamos se é uma string.\nconst textoOriginal = item.json?.output;\n\nif (typeof textoOriginal !== 'string') {\n  // Se o campo 'output' não existe ou não é texto, adiciona um erro ao JSON.\n  item.json.error = \"ERRO DE INPUT: O campo 'output' não foi encontrado no dado de entrada ou não é uma string.\";\n  // Retorna o item com a mensagem de erro. O workflow não quebra.\n  return [item];\n}\n\n// --- VERIFICAÇÃO 2: O SEPARADOR EXISTE? ---\n// Verificamos se o texto realmente contém o que queremos dividir.\nif (!textoOriginal.includes('</think>')) {\n  item.json.error = \"ERRO DE LÓGICA: O texto recebido não contém o separador '</think>'.\";\n  item.json.textoRecebido = textoOriginal; // Adicionamos o texto problemático para fácil depuração\n  return [item];\n}\n\n// --- EXECUÇÃO ---\n\n\n// Adiciona o resultado bem-sucedido ao JSON.\nconst resultadoFinal = textoOriginal.split('</think>')[1].trim();\n\n// Retorna o item com o resultado.\nswitch (resultadoFinal) {\n  case 'A1':\n      if(variaveis.A1 === \" \"){\n          return [\n            {\n              json: {\n                \"output\": resultadoFinal\n              }\n            }\n          ];\n      }\n      else{\n        return [\n            {\n              json: {\n                \"output\": \"rollBack\"\n              }\n            }\n          ];\n      }\n        \n    break;\n    \n  case 'A2':\n      if(variaveis.A2 === \" \"){\n          return [\n            {\n              json: {\n                \"output\": resultadoFinal\n              }\n            }\n          ];\n      }\n      else{\n        return [\n            {\n              json: {\n                \"output\": \"rollBack\"\n              }\n            }\n          ];\n      }\n    break;\n\n  case 'A3':\n    if(variaveis.A3 === \" \"){\n          return [\n            {\n              json: {\n                \"output\": resultadoFinal\n              }\n            }\n          ];\n      }\n      else{\n        return [\n            {\n              json: {\n                \"output\": \"rollBack\"\n              }\n            }\n          ];\n      }\n    \n    break;\n\n  case 'B1':\n    if(variaveis.B1 === \" \"){\n          return [\n            {\n              json: {\n                \"output\": resultadoFinal\n              }\n            }\n          ];\n      }\n      else{\n        return [\n            {\n              json: {\n                \"output\": \"rollBack\"\n              }\n            }\n          ];\n      }\n    \n    break;\n\n  case 'B2':\n      if(variaveis.B2 === \" \"){\n          return [\n            {\n              json: {\n                \"output\": resultadoFinal\n              }\n            }\n          ];\n      }\n      else{\n        return [\n            {\n              json: {\n                \"output\": \"rollBack\"\n              }\n            }\n          ];\n      }\n    break;\n\n  case 'B3':\n    if(variaveis.B3 === \" \"){\n          return [\n            {\n              json: {\n                \"output\": resultadoFinal\n              }\n            }\n          ];\n      }\n      else{\n        return [\n            {\n              json: {\n                \"output\": \"rollBack\"\n              }\n            }\n          ];\n      }\n    break;\n\n  case 'C1':\n    if(variaveis.C1 === \" \"){\n          return [\n            {\n              json: {\n                \"output\": resultadoFinal\n              }\n            }\n          ];\n      }\n      else{\n        return [\n            {\n              json: {\n                \"output\": \"rollBack\"\n              }\n            }\n          ];\n      }\n    \n    break;\n\n  case 'C2':\n    if(variaveis.C2 === \" \"){\n          return [\n            {\n              json: {\n                \"output\": resultadoFinal\n              }\n            }\n          ];\n      }\n      else{\n        return [\n            {\n              json: {\n                \"output\": \"rollBack\"\n              }\n            }\n          ];\n      }\n    \n    break;\n\n  case 'C3':\n    if(variaveis.C3 === \" \"){\n          return [\n            {\n              json: {\n                \"output\": resultadoFinal\n              }\n            }\n          ];\n      }\n      else{\n        return [\n            {\n              json: {\n                \"output\": \"rollBack\"\n              }\n            }\n          ];\n      }\n    \n    break;\n\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        624,
+        368
+      ],
+      "id": "5fbe1bfb-baeb-4d80-960a-f20117e41fad",
+      "name": "Code4"
+    },
+    {
+      "parameters": {
+        "model": "deepseek-r1-distill-llama-70b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        224,
+        544
+      ],
+      "id": "511e0ec2-e5aa-4737-a67e-06ccea70b5d2",
+      "name": "Groq Chat Model1",
+      "credentials": {
+        "groqApi": {
+          "id": "uZz4h4WrYeoZJeHn",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "deepseek-r1-distill-llama-70b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        224,
+        192
+      ],
+      "id": "66af7d88-1ddc-4386-8d85-3b021c0f34bd",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "uZz4h4WrYeoZJeHn",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Pega o primeiro item da entrada.\nconst item = $input.first();\n\nconst variaveis = $('Code1').first().json.estadoAtual\n// --- VERIFICAÇÃO 1: O DADO DE ENTRADA EXISTE? ---\n// Usamos '?' (optional chaining) para evitar erros se 'json' ou 'output' não existirem.\n// E verificamos se é uma string.\nconst textoOriginal = item.json?.output;\n\nif (typeof textoOriginal !== 'string') {\n  // Se o campo 'output' não existe ou não é texto, adiciona um erro ao JSON.\n  item.json.error = \"ERRO DE INPUT: O campo 'output' não foi encontrado no dado de entrada ou não é uma string.\";\n  // Retorna o item com a mensagem de erro. O workflow não quebra.\n  return [item];\n}\n\n// --- VERIFICAÇÃO 2: O SEPARADOR EXISTE? ---\n// Verificamos se o texto realmente contém o que queremos dividir.\nif (!textoOriginal.includes('</think>')) {\n  item.json.error = \"ERRO DE LÓGICA: O texto recebido não contém o separador '</think>'.\";\n  item.json.textoRecebido = textoOriginal; // Adicionamos o texto problemático para fácil depuração\n  return [item];\n}\n\n// --- EXECUÇÃO ---\n\n\n// Adiciona o resultado bem-sucedido ao JSON.\nconst resultadoFinal = textoOriginal.split('</think>')[1].trim();\n\n// Retorna o item com o resultado.\nswitch (resultadoFinal) {\n  case 'A1':\n      if(variaveis.A1 === \" \"){\n          return [\n            {\n              json: {\n                \"output\": resultadoFinal\n              }\n            }\n          ];\n      }\n      else{\n        return [\n            {\n              json: {\n                \"output\": \"rollBack\"\n              }\n            }\n          ];\n      }\n        \n    break;\n    \n  case 'A2':\n      if(variaveis.A2 === \" \"){\n          return [\n            {\n              json: {\n                \"output\": resultadoFinal\n              }\n            }\n          ];\n      }\n      else{\n        return [\n            {\n              json: {\n                \"output\": \"rollBack\"\n              }\n            }\n          ];\n      }\n    break;\n\n  case 'A3':\n    if(variaveis.A3 === \" \"){\n          return [\n            {\n              json: {\n                \"output\": resultadoFinal\n              }\n            }\n          ];\n      }\n      else{\n        return [\n            {\n              json: {\n                \"output\": \"rollBack\"\n              }\n            }\n          ];\n      }\n    \n    break;\n\n  case 'B1':\n    if(variaveis.B1 === \" \"){\n          return [\n            {\n              json: {\n                \"output\": resultadoFinal\n              }\n            }\n          ];\n      }\n      else{\n        return [\n            {\n              json: {\n                \"output\": \"rollBack\"\n              }\n            }\n          ];\n      }\n    \n    break;\n\n  case 'B2':\n      if(variaveis.B2 === \" \"){\n          return [\n            {\n              json: {\n                \"output\": resultadoFinal\n              }\n            }\n          ];\n      }\n      else{\n        return [\n            {\n              json: {\n                \"output\": \"rollBack\"\n              }\n            }\n          ];\n      }\n    break;\n\n  case 'B3':\n    if(variaveis.B3 === \" \"){\n          return [\n            {\n              json: {\n                \"output\": resultadoFinal\n              }\n            }\n          ];\n      }\n      else{\n        return [\n            {\n              json: {\n                \"output\": \"rollBack\"\n              }\n            }\n          ];\n      }\n    break;\n\n  case 'C1':\n    if(variaveis.C1 === \" \"){\n          return [\n            {\n              json: {\n                \"output\": resultadoFinal\n              }\n            }\n          ];\n      }\n      else{\n        return [\n            {\n              json: {\n                \"output\": \"rollBack\"\n              }\n            }\n          ];\n      }\n    \n    break;\n\n  case 'C2':\n    if(variaveis.C2 === \" \"){\n          return [\n            {\n              json: {\n                \"output\": resultadoFinal\n              }\n            }\n          ];\n      }\n      else{\n        return [\n            {\n              json: {\n                \"output\": \"rollBack\"\n              }\n            }\n          ];\n      }\n    \n    break;\n\n  case 'C3':\n    if(variaveis.C3 === \" \"){\n          return [\n            {\n              json: {\n                \"output\": resultadoFinal\n              }\n            }\n          ];\n      }\n      else{\n        return [\n            {\n              json: {\n                \"output\": \"rollBack\"\n              }\n            }\n          ];\n      }\n    \n    break;\n\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        592,
+        0
+      ],
+      "id": "d509fed6-59b3-464e-8f3b-deb046c0760b",
+      "name": "Code5"
+    },
+    {
+      "parameters": {
+        "model": "deepseek-r1-distill-llama-70b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        224,
+        912
+      ],
+      "id": "1ea81100-77c8-4113-9f10-c87335124050",
+      "name": "Groq Chat Model2",
+      "credentials": {
+        "groqApi": {
+          "id": "uZz4h4WrYeoZJeHn",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Pega o primeiro item da entrada.\nconst item = $input.first();\n\nconst variaveis = $('Code3').first().json.estadoAtual\n\n//teste\n\n\n\n\n// --- VERIFICAÇÃO 1: O DADO DE ENTRADA EXISTE? ---\n// Usamos '?' (optional chaining) para evitar erros se 'json' ou 'output' não existirem.\n// E verificamos se é uma string.\nconst textoOriginal = item.json?.output;\n\nif (typeof textoOriginal !== 'string') {\n  // Se o campo 'output' não existe ou não é texto, adiciona um erro ao JSON.\n  item.json.error = \"ERRO DE INPUT: O campo 'output' não foi encontrado no dado de entrada ou não é uma string.\";\n  // Retorna o item com a mensagem de erro. O workflow não quebra.\n  return [item];\n}\n\n// --- VERIFICAÇÃO 2: O SEPARADOR EXISTE? ---\n// Verificamos se o texto realmente contém o que queremos dividir.\nif (!textoOriginal.includes('</think>')) {\n  item.json.error = \"ERRO DE LÓGICA: O texto recebido não contém o separador '</think>'.\";\n  item.json.textoRecebido = textoOriginal; // Adicionamos o texto problemático para fácil depuração\n  return [item];\n}\n\n// --- EXECUÇÃO ---\n\n// Adiciona o resultado bem-sucedido ao JSON.\nconst resultadoFinal = textoOriginal.split('</think>')[1].trim();\n\nswitch (resultadoFinal) {\n  case 'A1':\n      if(variaveis.A1 === \" \"){\n          return [\n            {\n              json: {\n                \"output\": resultadoFinal\n              }\n            }\n          ];\n      }\n      else{\n        return [\n            {\n              json: {\n                \"output\": \"rollBack\"\n              }\n            }\n          ];\n      }\n        \n    break;\n    \n  case 'A2':\n      if(variaveis.A2 === \" \"){\n          return [\n            {\n              json: {\n                \"output\": resultadoFinal\n              }\n            }\n          ];\n      }\n      else{\n        return [\n            {\n              json: {\n                \"output\": \"rollBack\"\n              }\n            }\n          ];\n      }\n    break;\n\n  case 'A3':\n    if(variaveis.A3 === \" \"){\n          return [\n            {\n              json: {\n                \"output\": resultadoFinal\n              }\n            }\n          ];\n      }\n      else{\n        return [\n            {\n              json: {\n                \"output\": \"rollBack\"\n              }\n            }\n          ];\n      }\n    \n    break;\n\n  case 'B1':\n    if(variaveis.B1 === \" \"){\n          return [\n            {\n              json: {\n                \"output\": resultadoFinal\n              }\n            }\n          ];\n      }\n      else{\n        return [\n            {\n              json: {\n                \"output\": \"rollBack\"\n              }\n            }\n          ];\n      }\n    \n    break;\n\n  case 'B2':\n      if(variaveis.B2 === \" \"){\n          return [\n            {\n              json: {\n                \"output\": resultadoFinal\n              }\n            }\n          ];\n      }\n      else{\n        return [\n            {\n              json: {\n                \"output\": \"rollBack\"\n              }\n            }\n          ];\n      }\n    break;\n\n  case 'B3':\n    if(variaveis.B3 === \" \"){\n          return [\n            {\n              json: {\n                \"output\": resultadoFinal\n              }\n            }\n          ];\n      }\n      else{\n        return [\n            {\n              json: {\n                \"output\": \"rollBack\"\n              }\n            }\n          ];\n      }\n    break;\n\n  case 'C1':\n    if(variaveis.C1 === \" \"){\n          return [\n            {\n              json: {\n                \"output\": resultadoFinal\n              }\n            }\n          ];\n      }\n      else{\n        return [\n            {\n              json: {\n                \"output\": \"rollBack\"\n              }\n            }\n          ];\n      }\n    \n    break;\n\n  case 'C2':\n    if(variaveis.C2 === \" \"){\n          return [\n            {\n              json: {\n                \"output\": resultadoFinal\n              }\n            }\n          ];\n      }\n      else{\n        return [\n            {\n              json: {\n                \"output\": \"rollBack\"\n              }\n            }\n          ];\n      }\n    \n    break;\n\n  case 'C3':\n    if(variaveis.C3 === \" \"){\n          return [\n            {\n              json: {\n                \"output\": resultadoFinal\n              }\n            }\n          ];\n      }\n      else{\n        return [\n            {\n              json: {\n                \"output\": \"rollBack\"\n              }\n            }\n          ];\n      }\n    \n    break;\n\n}\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        608,
+        768
+      ],
+      "id": "88336147-ceaf-4acc-aaaf-1f498af78dc9",
+      "name": "Code6"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "f9285c1f-5ab9-438c-b01d-a629bdb15e94",
+              "leftValue": "={{ $json.output }}",
+              "rightValue": "=rollBack",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {
+          "ignoreCase": false
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        864,
+        832
+      ],
+      "id": "40351779-247d-4803-a695-544b86cd3e51",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "jsCode": "const resultadoFinal = $input.first().json.output\n\nreturn [\n    {\n      json: {\n        \"output\": resultadoFinal\n      }\n    }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1088,
+        848
+      ],
+      "id": "2bb21dd0-05ed-406e-a73f-274097e2b75d",
+      "name": "Code7"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "f9285c1f-5ab9-438c-b01d-a629bdb15e94",
+              "leftValue": "={{ $json.output }}",
+              "rightValue": "=rollBack",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {
+          "ignoreCase": false
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        848,
+        368
+      ],
+      "id": "3e2dd70b-2c41-4100-ad36-e6cdbdb6a521",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "f9285c1f-5ab9-438c-b01d-a629bdb15e94",
+              "leftValue": "={{ $json.output }}",
+              "rightValue": "=rollBack",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {
+          "ignoreCase": false
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        832,
+        0
+      ],
+      "id": "f1f1eae5-622b-45d4-826f-44446d5fc972",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "jsCode": "const resultadoFinal = $input.first().json.output\n\nreturn [\n    {\n      json: {\n        \"output\": resultadoFinal\n      }\n    }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1056,
+        16
+      ],
+      "id": "a906a846-47d9-4020-8fcc-11e91e2dfcdb",
+      "name": "Code8"
+    },
+    {
+      "parameters": {
+        "jsCode": "const resultadoFinal = $input.first().json.output\n\nreturn [\n    {\n      json: {\n        \"output\": resultadoFinal\n      }\n    }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1072,
+        384
+      ],
+      "id": "296b69e1-bc49-45f6-8749-f433c5b5afba",
+      "name": "Code9"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code1": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Code2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code3": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code2": {
+      "main": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent2": {
+      "main": [
+        [
+          {
+            "node": "Code5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Code6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code6": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Code3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code4": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code5": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code9",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "Code2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "074fb1c8-d08f-4062-ba51-2bafeba5d5dd",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "6892ca11f1193970828bf822ca3a91768b2fd207ffe98152a209e8ce55101d29"
+  },
+  "id": "oYNpbYC6X0EJaY0W",
+  "tags": []
+}
